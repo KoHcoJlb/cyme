@@ -348,6 +348,8 @@ pub struct Bus {
     pub host_controller_vendor: Option<String>,
     /// Device name of PCI Host Controller from pci.ids
     pub host_controller_device: Option<String>,
+    /// PCI device address
+    pub pci_addr: Option<String>,
     /// PCI vendor ID (VID)
     #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
     pub pci_vendor: Option<u16>,

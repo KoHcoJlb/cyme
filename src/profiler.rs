@@ -1113,6 +1113,12 @@ mod platform {
                     .unwrap_or_default(),
                 host_controller_vendor,
                 host_controller_device,
+                pci_addr: bus
+                    .sysfs_path()
+                    .parent()
+                    .and_then(|p| p.file_name())
+                    .and_then(|n| n.to_str())
+                    .map(|n| n.to_owned()),
                 pci_vendor: Some(pci_info.vendor_id),
                 pci_device: Some(pci_info.product_id),
                 pci_revision: Some(pci_info.revision),

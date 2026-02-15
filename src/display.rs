@@ -334,6 +334,8 @@ pub enum BusBlocks {
     HostControllerVendor,
     /// Device name of PCI Host Controller from pci.ids
     HostControllerDevice,
+    /// PCI device address
+    PciId,
     /// PCI vendor ID (VID)
     PciVendor,
     /// PCI device ID (PID)
@@ -1151,6 +1153,7 @@ impl Block<BusBlocks, Bus> for BusBlocks {
             vec![
                 BusBlocks::Icon,
                 BusBlocks::PortPath,
+                BusBlocks::PciId,
                 BusBlocks::Name,
                 BusBlocks::HostController,
                 BusBlocks::HostControllerDevice,
@@ -1162,6 +1165,7 @@ impl Block<BusBlocks, Bus> for BusBlocks {
         } else {
             vec![
                 BusBlocks::PortPath,
+                BusBlocks::PciId,
                 BusBlocks::Name,
                 BusBlocks::HostController,
                 BusBlocks::HostControllerDevice,
@@ -1205,6 +1209,7 @@ impl Block<BusBlocks, Bus> for BusBlocks {
     fn colour(&self, s: &str, ct: &colour::ColourTheme) -> ColoredString {
         match self {
             BusBlocks::BusNumber => ct.location.map_or(s.normal(), |c| s.color(c)),
+            BusBlocks::PciId => ct.number.map_or(s.normal(), |c| s.color(c)),
             BusBlocks::PciVendor => ct.vid.map_or(s.normal(), |c| s.color(c)),
             BusBlocks::PciDevice => ct.pid.map_or(s.normal(), |c| s.color(c)),
             BusBlocks::Name => ct.name.map_or(s.normal(), |c| s.color(c)),
@@ -1233,6 +1238,11 @@ impl Block<BusBlocks, Bus> for BusBlocks {
                 .as_ref()
                 .map(|i| i.get_bus_icon(bus))
                 .or(Some(" ".to_string())),
+            BusBlocks::PciId => Some(format!(
+                "{:pad$}",
+                bus.pci_addr.as_deref().unwrap_or("-"),
+                pad = pad.get(self).unwrap_or(&0)
+            )),
             BusBlocks::PciVendor => Some(match bus.pci_vendor {
                 Some(v) => Self::format_base_u16(v, settings),
                 None => format!("{:>6}", "-"),
@@ -1274,6 +1284,7 @@ impl Block<BusBlocks, Bus> for BusBlocks {
         match self {
             BusBlocks::BusNumber => "Bus",
             BusBlocks::PortPath => "PPath",
+            BusBlocks::PciId => "PCI-ID",
             BusBlocks::PciDevice => "VID",
             BusBlocks::PciVendor => "PID",
             BusBlocks::PciRevision => "Revisn",

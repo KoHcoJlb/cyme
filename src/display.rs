@@ -15,6 +15,7 @@ use strum_macros::{Display, EnumIter, VariantArray};
 use unicode_width::UnicodeWidthStr;
 
 use crate::colour;
+use crate::comment::get_comment;
 use crate::error::Result;
 use crate::icon;
 use crate::profiler::{Bus, Device, Filter, SystemProfile};
@@ -300,6 +301,7 @@ pub enum DeviceBlocks {
     LastEvent,
     /// Event icon
     EventIcon,
+    Comment,
 }
 
 /// Info that can be printed about a [`Bus`]
@@ -648,6 +650,7 @@ impl DeviceBlocks {
                 DeviceBlocks::Name,
                 DeviceBlocks::Serial,
                 DeviceBlocks::Driver,
+                DeviceBlocks::Comment,
             ]
         }
 
@@ -692,6 +695,7 @@ impl Block<DeviceBlocks, Device> for DeviceBlocks {
                 DeviceBlocks::Driver,
                 DeviceBlocks::SysPath,
                 DeviceBlocks::Speed,
+                DeviceBlocks::Comment,
             ]
         } else {
             vec![
@@ -704,6 +708,7 @@ impl Block<DeviceBlocks, Device> for DeviceBlocks {
                 DeviceBlocks::Serial,
                 DeviceBlocks::Driver,
                 DeviceBlocks::Speed,
+                DeviceBlocks::Comment,
             ]
         }
     }
@@ -1024,6 +1029,11 @@ impl Block<DeviceBlocks, Device> for DeviceBlocks {
                 Some(e) => settings.icons.as_ref().map(|i| i.get_event_icon(&e)),
                 None => None,
             },
+            DeviceBlocks::Comment => d
+                .serial_num
+                .as_deref()
+                .and_then(get_comment)
+                .map(|c| format!("{c:pad$}", pad = pad.get(self).unwrap_or(&0))),
         }
     }
 
@@ -1070,6 +1080,7 @@ impl Block<DeviceBlocks, Device> for DeviceBlocks {
             DeviceBlocks::Protocol | DeviceBlocks::UidProtocol => {
                 ct.protocol.map_or(s.normal(), |c| s.color(c))
             }
+            DeviceBlocks::Comment => ct.name.map_or(s.normal(), |c| s.color(c)),
         }
     }
 
@@ -1110,6 +1121,7 @@ impl Block<DeviceBlocks, Device> for DeviceBlocks {
             DeviceBlocks::Icon => ICON_HEADING,
             DeviceBlocks::EventIcon => "E",
             DeviceBlocks::LastEvent => "Event",
+            DeviceBlocks::Comment => "Comment",
         }
     }
 

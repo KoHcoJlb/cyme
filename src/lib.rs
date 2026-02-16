@@ -45,6 +45,7 @@
 #![warn(missing_docs)]
 
 pub mod colour;
+mod comment;
 pub mod config;
 pub mod display;
 pub mod error;
